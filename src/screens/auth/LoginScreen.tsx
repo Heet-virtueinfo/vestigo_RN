@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Alert, useColorScheme } from 'react-native';
+import { View, Text, StyleSheet, useColorScheme } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useAuth } from '../../context/AuthContext';
 import { Colors } from '../../constants/theme';
@@ -9,6 +9,8 @@ import { TouchableOpacity } from 'react-native';
 import Input from '../../components/Input';
 import Button from '../../components/Button';
 import { login } from '../../services/service';
+import AppLogo from '../../components/AppLogo';
+import { Toast } from '../../components/GlobalToast';
 
 export default function Login() {
   const systemScheme = useColorScheme();
@@ -24,7 +26,11 @@ export default function Login() {
 
   const handleLogin = async () => {
     if (!username || !password) {
-      Alert.alert('Error', 'Please enter both username and password.');
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Please enter both username and password.',
+      });
       return;
     }
 
@@ -34,11 +40,19 @@ export default function Login() {
       if (response && response.access) {
         await signIn(response.access, response.refresh);
       } else {
-        Alert.alert('Login Failed', 'Invalid credentials. Please try again.');
+        Toast.show({
+          type: 'error',
+          text1: 'Login Failed',
+          text2: 'Invalid credentials. Please try again.',
+        });
       }
     } catch (e) {
       console.error(e);
-      Alert.alert('Error', 'An unexpected error occurred.');
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'An unexpected error occurred.',
+      });
     } finally {
       setLoggingIn(false);
     }
@@ -53,9 +67,7 @@ export default function Login() {
         style={dynamicStyles.formContainer}
       >
         <View style={dynamicStyles.headerContainer}>
-          <View style={dynamicStyles.logoPlaceholder}>
-            <Ionicons name="shield-checkmark" size={32} color="white" />
-          </View>
+          <AppLogo size={80} />
           <Text style={dynamicStyles.headerText}>Welcome Back!</Text>
           <Text style={dynamicStyles.subHeaderText}>
             Sign in to your account
@@ -90,12 +102,12 @@ export default function Login() {
         </View>
 
         <Animated.View entering={FadeInUp.delay(200).duration(500)}>
-          <Text style={dynamicStyles.footerText}>
-            Not a member?{' '}
+          <View style={dynamicStyles.footerContainer}>
+            <Text style={dynamicStyles.footerText}>Not a member?</Text>
             <TouchableOpacity onPress={() => navigation.navigate('Register')}>
               <Text style={dynamicStyles.linkText}>Register here</Text>
             </TouchableOpacity>
-          </Text>
+          </View>
         </Animated.View>
       </Animated.View>
     </View>
@@ -120,26 +132,13 @@ const getStyles = (theme: typeof Colors.light) =>
       alignItems: 'center',
       marginBottom: 40,
     },
-    logoPlaceholder: {
-      height: 64,
-      width: 64,
-      backgroundColor: theme.primary,
-      borderRadius: 20, // Squircle
-      alignItems: 'center',
-      justifyContent: 'center',
-      marginBottom: 16,
-      shadowColor: theme.primary,
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.3,
-      shadowRadius: 8,
-      elevation: 5,
-    },
+    // logoPlaceholder removed
     headerText: {
       textAlign: 'center',
       fontSize: 28,
       fontWeight: 'bold',
       color: theme.text,
-      marginTop: 8,
+      marginTop: 24,
     },
     subHeaderText: {
       fontSize: 16,
@@ -152,14 +151,19 @@ const getStyles = (theme: typeof Colors.light) =>
     buttonContainer: {
       marginTop: 12,
     },
-    footerText: {
+    footerContainer: {
       marginTop: 32,
-      textAlign: 'center',
+      flexDirection: 'row',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    footerText: {
       fontSize: 14,
       color: theme.textMuted,
     },
     linkText: {
       fontWeight: '600',
       color: theme.primary,
+      marginLeft: 4,
     },
   });

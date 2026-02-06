@@ -4,16 +4,17 @@ import {
   Text,
   StyleSheet,
   ScrollView,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   useColorScheme,
   TouchableOpacity,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Animated, { FadeInDown } from 'react-native-reanimated';
 import Colors from '../../constants/theme';
+import { Toast } from '../../components/GlobalToast';
 import Input from '../../components/Input';
 import Button from '../../components/Button';
 import { register } from '../../services/service';
@@ -39,7 +40,6 @@ export default function Register() {
   };
 
   const handleRegister = async () => {
-    // Basic validation
     if (
       !formData.username ||
       !formData.email ||
@@ -47,16 +47,23 @@ export default function Register() {
       !formData.first_name ||
       !formData.last_name
     ) {
-      Alert.alert('Error', 'Please fill in all fields.');
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Please fill in all fields.',
+      });
       return;
     }
 
     setLoading(true);
     try {
       await register(formData);
-      Alert.alert('Success', 'Registration successful! Please login.', [
-        { text: 'OK', onPress: () => navigation.navigate('Login') },
-      ]);
+      Toast.show({
+        type: 'success',
+        text1: 'Success',
+        text2: 'Registration successful! Please login.',
+      });
+      navigation.navigate('Login');
     } catch (error: any) {
       console.error(error);
       let errorMessage = 'Registration failed.';
@@ -67,7 +74,11 @@ export default function Register() {
           .map(key => `${key}: ${errorData[key]}`)
           .join('\n');
       }
-      Alert.alert('Registration Failed', errorMessage);
+      Toast.show({
+        type: 'error',
+        text1: 'Registration Failed',
+        text2: errorMessage,
+      });
     } finally {
       setLoading(false);
     }
@@ -76,101 +87,113 @@ export default function Register() {
   const dynamicStyles = getStyles(theme);
 
   return (
-    <KeyboardAvoidingView
-      style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-    >
-      <ScrollView
-        contentContainerStyle={dynamicStyles.scrollContainer}
-        showsVerticalScrollIndicator={false}
+    <SafeAreaView style={{ flex: 1, backgroundColor: theme.background }}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       >
-        <Animated.View
-          entering={FadeInDown.duration(600).springify()}
-          style={dynamicStyles.container}
+        <ScrollView
+          contentContainerStyle={dynamicStyles.scrollContainer}
+          showsVerticalScrollIndicator={false}
         >
-          <View style={dynamicStyles.formContainer}>
-            <View style={dynamicStyles.headerContainer}>
-              <View style={dynamicStyles.logoPlaceholder}>
-                <Ionicons name="shield-checkmark" size={28} color="white" />
-              </View>
-              <Text style={dynamicStyles.headerText}>Create Account</Text>
-              <Text style={dynamicStyles.subHeaderText}>
-                Join Vestigo today
-              </Text>
-            </View>
-
-            <View style={dynamicStyles.inputGroup}>
-              <View style={dynamicStyles.row}>
-                <View style={{ flex: 1 }}>
-                  <Input
-                    label="First Name"
-                    value={formData.first_name}
-                    onChangeText={text => handleChange('first_name', text)}
-                    icon="person-outline"
-                  />
+          <Animated.View
+            entering={FadeInDown.duration(600).springify()}
+            style={dynamicStyles.container}
+          >
+            <View style={dynamicStyles.formContainer}>
+              <View style={dynamicStyles.headerContainer}>
+                <View style={dynamicStyles.logoPlaceholder}>
+                  <Ionicons name="shield-checkmark" size={28} color="white" />
                 </View>
-                <View style={{ width: 12 }} />
-                <View style={{ flex: 1 }}>
-                  <Input
-                    label="Last Name"
-                    value={formData.last_name}
-                    onChangeText={text => handleChange('last_name', text)}
-                    icon="person-outline"
-                  />
-                </View>
+                <Text style={dynamicStyles.headerText}>Create Account</Text>
+                <Text style={dynamicStyles.subHeaderText}>
+                  Join Vestigo today
+                </Text>
               </View>
 
-              <Input
-                label="Username"
-                value={formData.username}
-                onChangeText={text => handleChange('username', text)}
-                autoCapitalize="none"
-                icon="at-outline"
-              />
-              <Input
-                label="Email"
-                value={formData.email}
-                onChangeText={text => handleChange('email', text)}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                icon="mail-outline"
-              />
-              <Input
-                label="Phone (Optional)"
-                value={formData.phone}
-                onChangeText={text => handleChange('phone', text)}
-                keyboardType="phone-pad"
-                icon="call-outline"
-              />
-              <Input
-                label="Password"
-                value={formData.password}
-                onChangeText={text => handleChange('password', text)}
-                secureTextEntry={!showPassword}
-                icon="lock-closed-outline"
-                rightIcon={showPassword ? 'eye-off-outline' : 'eye-outline'}
-                onRightIconPress={() => setShowPassword(!showPassword)}
-              />
+              <View style={dynamicStyles.inputGroup}>
+                <View style={dynamicStyles.row}>
+                  <View style={{ flex: 1 }}>
+                    <Input
+                      label="First Name"
+                      placeholder="Enter first name"
+                      value={formData.first_name}
+                      onChangeText={text => handleChange('first_name', text)}
+                      icon="person-outline"
+                    />
+                  </View>
+                  <View style={{ width: 12 }} />
+                  <View style={{ flex: 1 }}>
+                    <Input
+                      label="Last Name"
+                      placeholder="Enter last name"
+                      value={formData.last_name}
+                      onChangeText={text => handleChange('last_name', text)}
+                      icon="person-outline"
+                    />
+                  </View>
+                </View>
 
-              <View style={dynamicStyles.buttonContainer}>
-                <Button
-                  title="Register"
-                  onPress={handleRegister}
-                  loading={loading}
+                <Input
+                  label="Username"
+                  placeholder="Enter username"
+                  value={formData.username}
+                  onChangeText={text => handleChange('username', text)}
+                  autoCapitalize="none"
+                  icon="at-outline"
                 />
+                <Input
+                  label="Email"
+                  placeholder="Enter email address"
+                  value={formData.email}
+                  onChangeText={text => handleChange('email', text)}
+                  keyboardType="email-address"
+                  autoCapitalize="none"
+                  icon="mail-outline"
+                />
+                <Input
+                  label="Phone (Optional)"
+                  placeholder="Enter phone number"
+                  value={formData.phone}
+                  onChangeText={text =>
+                    handleChange('phone', text.replace(/[^0-9+\s-]/g, ''))
+                  }
+                  keyboardType="phone-pad"
+                  icon="call-outline"
+                />
+                <Input
+                  label="Password"
+                  placeholder="Enter password"
+                  value={formData.password}
+                  onChangeText={text => handleChange('password', text)}
+                  secureTextEntry={!showPassword}
+                  icon="lock-closed-outline"
+                  rightIcon={showPassword ? 'eye-off-outline' : 'eye-outline'}
+                  onRightIconPress={() => setShowPassword(!showPassword)}
+                />
+
+                <View style={dynamicStyles.buttonContainer}>
+                  <Button
+                    title="Register"
+                    onPress={handleRegister}
+                    loading={loading}
+                  />
+                </View>
+              </View>
+
+              <View style={dynamicStyles.footerContainer}>
+                <Text style={dynamicStyles.footerText}>
+                  Already have an account?
+                </Text>
+                <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+                  <Text style={dynamicStyles.linkText}>Sign in</Text>
+                </TouchableOpacity>
               </View>
             </View>
-
-            <Text style={dynamicStyles.footerText}>
-              Already have an account?{' '}
-              <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-                <Text style={dynamicStyles.linkText}>Sign in</Text>
-              </TouchableOpacity>
-            </Text>
-          </View>
-        </Animated.View>
-      </ScrollView>
-    </KeyboardAvoidingView>
+          </Animated.View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 }
 
@@ -184,7 +207,7 @@ const getStyles = (theme: typeof Colors.light) =>
     container: {
       flex: 1,
       paddingHorizontal: 24,
-      paddingVertical: 48,
+      paddingVertical: 35,
       alignItems: 'center',
     },
     formContainer: {
@@ -229,14 +252,19 @@ const getStyles = (theme: typeof Colors.light) =>
     buttonContainer: {
       marginTop: 24,
     },
+    footerContainer: {
+      marginTop: 25,
+      flexDirection: 'row',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
     footerText: {
-      marginTop: 32,
-      textAlign: 'center',
       fontSize: 14,
       color: theme.textMuted,
     },
     linkText: {
       fontWeight: '600',
       color: theme.primary,
+      marginLeft: 4,
     },
   });

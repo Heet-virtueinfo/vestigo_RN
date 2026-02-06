@@ -104,7 +104,7 @@ export const moveOpportunityStage = async (id: number, stage: string) => {
 };
 
 export const submitForUnderwriting = async (opportunityId: number) => {
-  const response = await api.post('/underwriting/submissions/', {
+  const response = await api.post(ENDPOINTS.UNDERWRITING.SUBMISSIONS, {
     opportunity: opportunityId,
     status: 'PENDING',
   });
@@ -113,32 +113,38 @@ export const submitForUnderwriting = async (opportunityId: number) => {
 
 // --- Underwriting ---
 export const getSubmissions = async () => {
-  const response = await api.get('/underwriting/submissions/');
+  const response = await api.get(ENDPOINTS.UNDERWRITING.SUBMISSIONS);
   return response.data;
 };
 
 export const getSubmissionDetail = async (id: number) => {
-  const response = await api.get(`/underwriting/submissions/${id}/`);
+  const response = await api.get(`${ENDPOINTS.UNDERWRITING.SUBMISSIONS}${id}/`);
   return response.data;
 };
 
 export const approveSubmission = async (id: number, notes?: string) => {
-  const response = await api.post(`/underwriting/submissions/${id}/approve/`, {
-    notes,
-  });
+  const response = await api.post(
+    `${ENDPOINTS.UNDERWRITING.SUBMISSIONS}${id}/approve/`,
+    {
+      notes,
+    },
+  );
   return response.data;
 };
 
 export const rejectSubmission = async (id: number, notes?: string) => {
-  const response = await api.post(`/underwriting/submissions/${id}/reject/`, {
-    notes,
-  });
+  const response = await api.post(
+    `${ENDPOINTS.UNDERWRITING.SUBMISSIONS}${id}/reject/`,
+    {
+      notes,
+    },
+  );
   return response.data;
 };
 
 export const requestInfoSubmission = async (id: number, notes: string) => {
   const response = await api.post(
-    `/underwriting/submissions/${id}/request-info/`,
+    `${ENDPOINTS.UNDERWRITING.SUBMISSIONS}${id}/request-info/`,
     {
       notes,
     },
@@ -148,7 +154,7 @@ export const requestInfoSubmission = async (id: number, notes: string) => {
 
 // --- Policies ---
 export const getPolicies = async () => {
-  const response = await api.get('/operations/policies/');
+  const response = await api.get(ENDPOINTS.POLICIES.BASE);
   // DRF return check similar to web
   return Array.isArray(response.data)
     ? response.data
@@ -156,18 +162,20 @@ export const getPolicies = async () => {
 };
 
 export const getPolicyDetail = async (id: number) => {
-  const response = await api.get(`/operations/policies/${id}/details/`);
+  const response = await api.get(
+    `${ENDPOINTS.POLICIES.BASE}${id}/${ENDPOINTS.POLICIES.DETAILS}/`,
+  );
   return response.data;
 };
 
 export const createPolicy = async (data: any) => {
-  const response = await api.post('/operations/policies/', data);
+  const response = await api.post(ENDPOINTS.POLICIES.BASE, data);
   return response.data;
 };
 
 export const generatePaymentSchedule = async (id: number, count: number) => {
   const response = await api.post(
-    `/operations/policies/${id}/generate-schedule/`,
+    `${ENDPOINTS.POLICIES.BASE}${id}/${ENDPOINTS.POLICIES.GENERATE_SCHEDULE}/`,
     { count },
   );
   return response.data;
@@ -177,17 +185,17 @@ export const updatePolicyStatus = async (
   id: number,
   action: 'cancel' | 'expire',
 ) => {
-  const response = await api.post(`/operations/policies/${id}/${action}/`);
+  const response = await api.post(`${ENDPOINTS.POLICIES.BASE}${id}/${action}/`);
   return response.data;
 };
 
 export const createClaim = async (data: any) => {
-  const response = await api.post('/claims/', data);
+  const response = await api.post(ENDPOINTS.CLAIMS.BASE, data);
   return response.data;
 };
 
 export const getClaims = async () => {
-  const response = await api.get('/claims/');
+  const response = await api.get(ENDPOINTS.CLAIMS.BASE);
   // DRF may return array or { results: ... }
   return Array.isArray(response.data)
     ? response.data
@@ -195,48 +203,60 @@ export const getClaims = async () => {
 };
 
 export const getClaimDetail = async (id: number) => {
-  const response = await api.get(`/claims/${id}/`);
+  const response = await api.get(`${ENDPOINTS.CLAIMS.BASE}${id}/`);
   return response.data;
 };
 
 export const updateClaimStatus = async (id: number, payload: any) => {
   // payload: { status, note, approved_amount?, paid_amount?, payout_date? }
-  const response = await api.post(`/claims/${id}/set-status/`, payload);
+  const response = await api.post(
+    `${ENDPOINTS.CLAIMS.BASE}${id}/${ENDPOINTS.CLAIMS.SET_STATUS}/`,
+    payload,
+  );
   return response.data;
 };
 
 // --- Payments ---
 export const markPaymentPaid = async (id: number, amount: string) => {
-  const response = await api.post(`/operations/payments/${id}/mark-paid/`, {
-    amount,
-  });
+  const response = await api.post(
+    `${ENDPOINTS.PAYMENTS.BASE}${id}/${ENDPOINTS.PAYMENTS.MARK_PAID}/`,
+    {
+      amount,
+    },
+  );
   return response.data;
 };
 
 export const markPaymentFailed = async (id: number, reason: string) => {
-  const response = await api.post(`/operations/payments/${id}/mark-failed/`, {
-    reason,
-  });
+  const response = await api.post(
+    `${ENDPOINTS.PAYMENTS.BASE}${id}/${ENDPOINTS.PAYMENTS.MARK_FAILED}/`,
+    {
+      reason,
+    },
+  );
   return response.data;
 };
 
 // --- Late Charges ---
 export const getLateCharges = async () => {
-  const response = await api.get('/operations/late-charges/');
+  const response = await api.get(ENDPOINTS.LATE_CHARGES.BASE);
   return Array.isArray(response.data)
     ? response.data
     : response.data.results || [];
 };
 
 export const getLateChargeDetail = async (id: number) => {
-  const response = await api.get(`/operations/late-charges/${id}/`);
+  const response = await api.get(`${ENDPOINTS.LATE_CHARGES.BASE}${id}/`);
   return response.data;
 };
 
 export const waiveLateCharge = async (id: number, reason: string) => {
-  const response = await api.post(`/operations/late-charges/${id}/waive/`, {
-    reason,
-  });
+  const response = await api.post(
+    `${ENDPOINTS.LATE_CHARGES.BASE}${id}/${ENDPOINTS.LATE_CHARGES.WAIVE}/`,
+    {
+      reason,
+    },
+  );
   return response.data;
 };
 
@@ -245,26 +265,33 @@ export const adjustLateCharge = async (
   amount: number,
   notes?: string,
 ) => {
-  const response = await api.post(`/operations/late-charges/${id}/adjust/`, {
-    amount,
-    notes,
-  });
+  const response = await api.post(
+    `${ENDPOINTS.LATE_CHARGES.BASE}${id}/${ENDPOINTS.LATE_CHARGES.ADJUST}/`,
+    {
+      amount,
+      notes,
+    },
+  );
   return response.data;
 };
 
 export const markLateChargePaid = async (id: number) => {
-  const response = await api.post(`/operations/late-charges/${id}/mark_paid/`);
+  const response = await api.post(
+    `${ENDPOINTS.LATE_CHARGES.BASE}${id}/${ENDPOINTS.LATE_CHARGES.MARK_PAID}/`,
+  );
   return response.data;
 };
 
 export const deleteLateCharge = async (id: number) => {
-  const response = await api.delete(`/operations/late-charges/${id}/`);
+  const response = await api.delete(`${ENDPOINTS.LATE_CHARGES.BASE}${id}/`);
   return response.data;
 };
 
 // --- Reports ---
 export const getAdvancedReports = async (range: string = 'month') => {
-  const response = await api.get(`/reports/advanced-reports/?range=${range}`);
+  const response = await api.get(
+    `${ENDPOINTS.REPORTS.ADVANCED_REPORTS}?range=${range}`,
+  );
   return response.data;
 };
 

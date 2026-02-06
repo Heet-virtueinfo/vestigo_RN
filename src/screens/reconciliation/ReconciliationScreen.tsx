@@ -112,6 +112,8 @@ export default function ReconciliationScreen() {
     return true;
   });
 
+  console.log(filteredItems);
+
   const stats = {
     unreconciled: items.filter(i => !i.is_reconciled).length,
     amount: items

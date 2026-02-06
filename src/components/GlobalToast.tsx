@@ -82,6 +82,7 @@ const GlobalToast = () => {
       position="top"
       positionValue={50}
       showCloseIcon={false}
+      useModal={false}
     />
   );
 };
